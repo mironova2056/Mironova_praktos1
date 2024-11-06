@@ -5,6 +5,8 @@ from django.db.models import UniqueConstraint
 from django.db.models.functions import Lower
 from datetime import date
 from django.conf import settings
+from django.contrib.auth.models import User
+
 
 class Genre(models.Model):
     name = models.CharField(max_length=200, help_text='Enter a book genre')
@@ -61,7 +63,9 @@ class BookInstance(models.Model):
 
     @property
     def is_overdue(self):
-        return bool(self.due_back and date.today() > self.due_back)
+        if self.due_back and date.today() > self.due_back:
+            return True
+        return False
 
     LOAN_STATUS = (
         ('m', 'Maintenance'),
@@ -96,3 +100,4 @@ class Author(models.Model):
 
     def __str__(self):
         return f'{self.last_name}, {self.first_name}'
+
