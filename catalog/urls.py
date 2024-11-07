@@ -19,4 +19,5 @@ urlpatterns = [
     path('book/<int:pk>/update/', views.BookUpdate.as_view(), name='book-update'),
     path('book/<int:pk>/delete/', views.BookDelete.as_view(), name='book-delete'),
     path('copy/<uuid:pk>/change_status/', views.change_copy_status, name='change_copy_status'),
+
 ]
