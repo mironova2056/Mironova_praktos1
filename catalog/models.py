@@ -101,3 +101,9 @@ class Author(models.Model):
     def __str__(self):
         return f'{self.last_name}, {self.first_name}'
 
+
+class FavoriteBook(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    book = models.ForeignKey('Book', on_delete=models.SET_NULL, null=True)
+    def __str__(self):
+        return f"{self.book}"

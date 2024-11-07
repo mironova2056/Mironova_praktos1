@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Book,Author,BookInstance,Genre,Language
+from .models import Book,Author,BookInstance,Genre,Language, FavoriteBook
 from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.http import HttpResponseRedirect
@@ -8,7 +8,7 @@ from django.contrib.auth.decorators import permission_required, login_required
 import datetime
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-
+from .forms import FavoriteBookForm
 
 
 from  .forms import RenewBookForm
@@ -111,3 +111,13 @@ def change_copy_status(request, pk):
 
     return redirect('book-detail', pk=copy.book.pk)
 
+def set_favorite_book(request):
+    favorite_book, created = FavoriteBook.objects.get_or_create(user = request.user)
+    if request.method == 'POST':
+        form = FavoriteBookForm(request.POST, instance=favorite_book)
+        if form.is_valid():
+            form.save()
+            return redirect('index')
+    else:
+        form = FavoriteBookForm(instance=favorite_book)
+    return render(request, 'catalog/set_favorite_book.html', {'form':form})
