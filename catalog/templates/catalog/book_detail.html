@@ -3,10 +3,9 @@
 {% block content %}
   <h1>Title: {{ book.title }}</h1>
 
-  <p><strong>Author:</strong> <a href="">{{ book.author }}</a></p> <!-- author detail link not yet defined -->
+  <p><strong>Author:</strong> <a href="{% url 'author-detail' book.author.pk %}">{{ book.author }}</a></p>
   <p><strong>Summary:</strong> {{ book.summary }}</p>
   <p><strong>ISBN:</strong> {{ book.isbn }}</p>
-  <p><strong>Language:</strong> {{ book.language }}</p>
   <p><strong>Genre:</strong> {% for genre in book.genre.all %} {{ genre }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
 
   <div style="margin-left:20px;margin-top:20px">
@@ -14,7 +13,26 @@
 
     {% for copy in book.bookinstance_set.all %}
     <hr>
-    <p class="{% if copy.status == 'a' %}text-success{% elif copy.status == 'd' %}text-danger{% else %}text-warning{% endif %}">{{ copy.get_status_display }}</p>
+    <p
+      class="{% if copy.status == 'a' %}text-success{% elif copy.status == 'd' %}text-danger
+      {% else %}text-warning{% endif %}"
+    >
+      {{ copy.get_status_display }}
+    </p>
+
+    {% if user.is_staff or user_is_librarian %}
+    <form method="post" action="{% url 'change_copy_status' copy.id %}">
+      {% csrf_token %}
+      <label for="status_{{ copy.id }}">Change status:</label>
+      <select name="status" id="status_{{ copy.id }}">
+        {% for key, value in copy.LOAN_STATUS %}
+          <option value="{{ key }}" {% if copy.status == key %}selected{% endif %}>{{ value }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit">Update</button>
+    </form>
+    {% endif %}
+
     {% if copy.status != 'a' %}<p><strong>Due to be returned:</strong> {{copy.due_back}}</p>{% endif %}
     <p><strong>Imprint:</strong> {{copy.imprint}}</p>
     <p class="text-muted"><strong>Id:</strong> {{copy.id}}</p>
